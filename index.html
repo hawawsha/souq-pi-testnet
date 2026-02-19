@@ -1,1 +1,112 @@
-a
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سوق بي - Testnet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #userInfo {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e7f3fe;
+            border-radius: 5px;
+            text-align: left;
+            direction: ltr;
+        }
+        .status {
+            color: #666;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>سوق بي - Testnet</h1>
+        <p>هذه نسخة تجريبية على شبكة Testnet</p>
+        
+        <button id="loginBtn">تسجيل الدخول عبر Pi</button>
+        
+        <div id="userInfo" style="display: none;">
+            <h3>معلومات المستخدم:</h3>
+            <p><strong>اسم المستخدم:</strong> <span id="username"></span></p>
+            <p><strong>الرصيد:</strong> <span id="balance"></span> π</p>
+        </div>
+        
+        <div class="status" id="status">جاري تحميل Pi SDK...</div>
+    </div>
+
+    <!-- تضمين Pi SDK (نسخة Sandbox) -->
+    <script src="https://sandbox.minepi.com/pi-sdk.js"></script>
+    
+    <script>
+        // تهيئة Pi SDK في وضع Sandbox
+        if (window.Pi) {
+            window.Pi.init({
+                version: "2.0",
+                sandbox: true  // مهم: تفعيل وضع الاختبار
+            });
+            document.getElementById('status').innerText = 'Pi SDK جاهز ✅';
+        } else {
+            document.getElementById('status').innerText = 'خطأ: لم يتم تحميل Pi SDK';
+        }
+
+        // التعامل مع زر تسجيل الدخول
+        document.getElementById('loginBtn').addEventListener('click', async () => {
+            try {
+                document.getElementById('status').innerText = 'جاري تسجيل الدخول...';
+                
+                // طلب تسجيل الدخول بصلاحية اسم المستخدم
+                const scopes = ['username'];
+                const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
+                
+                // عرض معلومات المستخدم
+                document.getElementById('username').innerText = auth.user.username;
+                document.getElementById('balance').innerText = auth.user.balance || '0.00';
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('status').innerText = 'تم تسجيل الدخول بنجاح ✅';
+                
+            } catch (error) {
+                console.error(error);
+                document.getElementById('status').innerText = 'خطأ في تسجيل الدخول: ' + error.message;
+            }
+        });
+
+        // دالة اختيارية لمعالجة المدفوعات غير المكتملة (يمكن تركها فارغة حالياً)
+        function onIncompletePaymentFound(payment) {
+            console.log('دفعة غير مكتملة:', payment);
+            // يمكنك إضافة منطق لإكمال الدفعة لاحقاً
+        }
+    </script>
+</body>
+</html>
