@@ -66,19 +66,21 @@
         <div class="status" id="status">جاري تحميل Pi SDK...</div>
     </div>
 
-    <!-- تضمين Pi SDK (نسخة Sandbox) -->
-    <script src="https://sandbox.minepi.com/pi-sdk.js"></script>
+    <!-- الرابط الصحيح لـ SDK -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     
     <script>
-        // تهيئة Pi SDK في وضع Sandbox
+        // تهيئة Pi SDK لـ Testnet
         if (window.Pi) {
             window.Pi.init({
                 version: "2.0",
-                sandbox: true  // مهم: تفعيل وضع الاختبار
+                sandbox: true // هذا يفعل وضع Testnet
             });
-            document.getElementById('status').innerText = 'Pi SDK جاهز ✅';
+            document.getElementById('status').innerText = 'Pi SDK جاهز - وضع Testnet ✅';
+            document.getElementById('status').style.color = '#4CAF50';
         } else {
             document.getElementById('status').innerText = 'خطأ: لم يتم تحميل Pi SDK';
+            document.getElementById('status').style.color = 'red';
         }
 
         // التعامل مع زر تسجيل الدخول
@@ -86,8 +88,9 @@
             try {
                 document.getElementById('status').innerText = 'جاري تسجيل الدخول...';
                 
-                // طلب تسجيل الدخول بصلاحية اسم المستخدم
-                const scopes = ['username'];
+                // طلب تسجيل الدخول بصلاحيات المستخدم
+                const scopes = ['username', 'payments']; // أضف payments إذا كنت تريد التعامل مع المدفوعات
+                
                 const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
                 
                 // عرض معلومات المستخدم
@@ -99,13 +102,15 @@
             } catch (error) {
                 console.error(error);
                 document.getElementById('status').innerText = 'خطأ في تسجيل الدخول: ' + error.message;
+                document.getElementById('status').style.color = 'red';
             }
         });
 
-        // دالة اختيارية لمعالجة المدفوعات غير المكتملة (يمكن تركها فارغة حالياً)
+        // دالة معالجة المدفوعات غير المكتملة (مطلوبة حتى مع sandbox)
         function onIncompletePaymentFound(payment) {
             console.log('دفعة غير مكتملة:', payment);
-            // يمكنك إضافة منطق لإكمال الدفعة لاحقاً
+            // يمكنك إعادة توجيه المستخدم لإكمال الدفعة
+            // أو تحديث حالة الدفعة في قاعدة البيانات
         }
     </script>
 </body>
