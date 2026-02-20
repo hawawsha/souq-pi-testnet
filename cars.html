@@ -4,56 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>سيارات | سوق Pi</title>
-    <link rel="stylesheet" href="assets/css/main.css"> <!-- سننشئه لاحقاً -->
+    <link rel="stylesheet" href="assets/css/main.css">
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
-    <!-- شريط التنقل (انسخه من index.html) -->
-    <nav class="navbar"> ... </nav>
+    <nav class="navbar">... (نفس شريط التنقل) ...</nav>
 
     <div class="container">
-        <h1 class="section-title">🚗 السيارات المتاحة</h1>
-        <div class="products-grid" id="carsGrid">
-            <!-- هنا ستظهر السيارات -->
-        </div>
+        <h1 class="section-title">🚗 سيارات للبيع</h1>
+        <div class="products-grid" id="productsGrid"></div>
     </div>
 
-    <!-- تذييل الصفحة -->
-    <footer class="footer"> ... </footer>
+    <footer class="footer">... (نفس التذييل) ...</footer>
 
     <script>
-        const API_URL = 'https://sheetdb.io/api/v1/xxxxxxxxxxxxxx'; // ضع رابط SheetDB هنا
-        const BASE_PRICE = 7; // 1 Pi = 7 دينار
+        const API_URL = 'https://sheetdb.io/api/v1/xxxxxxxxxxxxxx'; // ضع رابط API
+        const PI_TO_JOD = 314159; // 1 Pi = 314159 دينار
+        const CATEGORY = 'سيارات'; // غيّر حسب الصفحة
 
-        async function loadCars() {
+        async function loadProducts() {
             try {
                 const response = await fetch(API_URL);
-                const products = await response.json();
-                const cars = products.filter(p => p.category === 'سيارات');
+                const allProducts = await response.json();
+                const filtered = allProducts.filter(p => p.category === CATEGORY);
 
-                const grid = document.getElementById('carsGrid');
-                grid.innerHTML = cars.map(car => {
-                    const piPrice = (car.price / BASE_PRICE).toFixed(2);
+                const grid = document.getElementById('productsGrid');
+                if (filtered.length === 0) {
+                    grid.innerHTML = '<p class="no-products">لا توجد منتجات في هذا القسم حالياً</p>';
+                    return;
+                }
+
+                grid.innerHTML = filtered.map(p => {
+                    const piPrice = (p.price_jod / PI_TO_JOD).toFixed(6);
                     return `
                         <div class="product-card">
-                            <img src="images/${car.image}" alt="${car.name}" class="product-image">
-                            <h3>${car.name}</h3>
-                            <p>${car.description}</p>
-                            <div class="product-price">${car.price} د.أ</div>
+                            <img src="images/${p.image}" alt="${p.name}" class="product-image" onerror="this.src='https://via.placeholder.com/300'">
+                            <h3>${p.name}</h3>
+                            <p>${p.description || ''}</p>
+                            <div class="product-price">${p.price_jod} د.أ</div>
                             <span class="pi-price">${piPrice} Pi</span>
-                            <button class="buy-button" onclick="buyCar(${car.id}, '${car.name}', ${car.price})">
+                            <button class="buy-button" onclick="buyProduct('${p.id}', '${p.name}', ${p.price_jod})">
                                 اشتري بـ Pi
                             </button>
                         </div>
                     `;
                 }).join('');
             } catch (error) {
-                console.error('خطأ في تحميل السيارات:', error);
+                console.error('خطأ في تحميل المنتجات:', error);
             }
         }
 
-        function buyCar(id, name, priceJOD) {
-            const piAmount = (priceJOD / BASE_PRICE).toFixed(2);
+        function buyProduct(id, name, priceJOD) {
+            if (!window.Pi) return alert('❌ Pi غير مهيأ');
+            const piAmount = (priceJOD / PI_TO_JOD).toFixed(6);
             if (!confirm(`شراء ${name} بـ ${piAmount} Pi؟`)) return;
 
             Pi.createPayment({
@@ -61,18 +64,17 @@
                 memo: `شراء ${name}`,
                 metadata: { productId: id }
             }).then(payment => {
-                alert('تم الشراء بنجاح!');
+                alert('🎉 تم الشراء بنجاح!');
             }).catch(err => {
-                alert('فشل الشراء');
+                alert('❌ فشل الشراء');
             });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // تهيئة Pi SDK (إذا لم تكن مهيأة)
             if (window.Pi) {
-                Pi.init({ appId: 'souq-pi-test' });
+                Pi.init({ appId: 'souq-pi-test' }); // ضع appId
             }
-            loadCars();
+            loadProducts();
         });
     </script>
 </body>
