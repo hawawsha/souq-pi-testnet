@@ -1,117 +1,657 @@
 <!DOCTYPE html>
-<html lang="ar">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سوق بي - Testnet</title>
+    <title>سوق Pi | الهواوشة</title>
+    <!-- Pi SDK -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
+        /* الأنماط الكاملة - كما كانت سابقاً */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --pi-purple: #8B5CF6;
+            --pi-dark: #4C1D95;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --dark: #1F2937;
+            --light: #F9FAFB;
+            --gray: #6B7280;
+        }
+
         body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
-        .container {
+
+        /* شريط التنقل */
+        .navbar {
             background: white;
-            padding: 30px;
-            border-radius: 10px;
+            padding: 1rem 2rem;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            max-width: 400px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1200px;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        h1 {
-            color: #333;
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
-        button {
-            background-color: #4CAF50;
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .logo span {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--pi-purple);
+        }
+
+        .pi-balance {
+            background: var(--pi-purple);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-weight: bold;
+        }
+
+        .connection-status {
+            background: var(--warning);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        .connection-status.connected {
+            background: var(--success);
+        }
+
+        /* المحتوى الرئيسي */
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .welcome-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            text-align: center;
+            animation: slideDown 0.5s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .welcome-card h1 {
+            font-size: 2.5rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .welcome-card h1 span {
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .welcome-card p {
+            color: var(--gray);
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .wallet-info {
+            background: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin: 1rem 0;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .pi-stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin: 2rem 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--pi-purple);
+        }
+
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .domain-badge {
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-dark));
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 1rem;
+            font-weight: bold;
+        }
+
+        .section-title {
+            color: white;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .categories-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--dark);
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--pi-purple), var(--pi-dark));
+            border-radius: 50%;
+            margin: 0 auto 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .category-icon span {
+            font-size: 2.5rem;
+        }
+
+        .category-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .category-card p {
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .product-count {
+            background: var(--light);
+            padding: 0.25rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--pi-purple);
+            font-weight: bold;
+        }
+
+        .featured-products {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .product-card {
+            background: var(--light);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 150px;
+            background: #ddd;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray);
+            font-size: 3rem;
+        }
+
+        .product-price {
+            color: var(--pi-purple);
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin: 0.5rem 0;
+        }
+
+        .pi-price {
+            background: var(--pi-purple);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            display: inline-block;
+        }
+
+        .buy-button {
+            background: var(--success);
             color: white;
             border: none;
-            padding: 12px 24px;
-            font-size: 16px;
-            border-radius: 5px;
+            padding: 8px 16px;
+            border-radius: 8px;
+            margin-top: 10px;
             cursor: pointer;
-            margin: 10px;
+            font-weight: bold;
+            width: 100%;
         }
-        button:hover {
-            background-color: #45a049;
+
+        .buy-button:hover {
+            opacity: 0.9;
         }
-        #userInfo {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #e7f3fe;
-            border-radius: 5px;
-            text-align: left;
-            direction: ltr;
+
+        .footer {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px 20px 0 0;
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--gray);
         }
-        .status {
-            color: #666;
-            font-size: 14px;
-            margin-top: 20px;
+
+        .welcome-message {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 2000;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .welcome-message.show {
+            display: block;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>سوق بي - Testnet</h1>
-        <p>هذه نسخة تجريبية على شبكة Testnet</p>
-        
-        <button id="loginBtn">تسجيل الدخول عبر Pi</button>
-        
-        <div id="userInfo" style="display: none;">
-            <h3>معلومات المستخدم:</h3>
-            <p><strong>اسم المستخدم:</strong> <span id="username"></span></p>
-            <p><strong>الرصيد:</strong> <span id="balance"></span> π</p>
+
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="images/pi-logo.png" alt="Pi Logo" onerror="this.src='https://via.placeholder.com/40'">
+                <span>سوق Pi</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html">الرئيسية</a>
+                <a href="cars.html">سيارات</a>
+                <a href="categories.html">إلكترونيات</a>
+                <a href="cv.html">خدمات</a>
+                <a href="blog.html">مدونة</a>
+            </div>
+            <div style="display: flex; align-items: center;">
+                <span class="connection-status" id="piStatus">⏳ جاري الاتصال...</span>
+                <div class="pi-balance" id="piBalance">
+                    <span>🔷</span>
+                    <span id="balanceAmount">0.00</span>
+                    <span>Pi</span>
+                </div>
+            </div>
         </div>
-        
-        <div class="status" id="status">جاري تحميل Pi SDK...</div>
+    </nav>
+
+    <div class="container">
+        <!-- بطاقة الترحيب -->
+        <div class="welcome-card">
+            <h1>مرحباً بك في <span>سوق Pi</span></h1>
+            <p>أول سوق متعدد البائعين على شبكة Pi Network في الأردن</p>
+            
+            <div class="wallet-info">
+                <strong>محفظة التطبيق:</strong> GC3YQ...Z656N
+            </div>
+
+            <div class="pi-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalProducts">+100</div>
+                    <div class="stat-label">منتج</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalSellers">+25</div>
+                    <div class="stat-label">بائع</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalTransactions">+500</div>
+                    <div class="stat-label">صفقة</div>
+                </div>
+            </div>
+
+            <div class="domain-badge">
+                🔗 alhawawsheh.pi قريباً
+            </div>
+        </div>
+
+        <!-- الأقسام الرئيسية -->
+        <h2 class="section-title">تسوق حسب القسم</h2>
+        <div class="categories-grid">
+            <a href="cars.html" class="category-card" style="animation-delay: 0.1s">
+                <div class="category-icon">
+                    <span>🚗</span>
+                </div>
+                <h3>السيارات</h3>
+                <p>أحدث موديلات السيارات الكهربائية</p>
+                <span class="product-count">9 سيارات</span>
+            </a>
+
+            <a href="categories.html" class="category-card" style="animation-delay: 0.2s">
+                <div class="category-icon">
+                    <span>📱</span>
+                </div>
+                <h3>الإلكترونيات</h3>
+                <p>هواتف، أجهزة، إكسسوارات</p>
+                <span class="product-count">50+ منتج</span>
+            </a>
+
+            <a href="cv.html" class="category-card" style="animation-delay: 0.3s">
+                <div class="category-icon">
+                    <span>👔</span>
+                </div>
+                <h3>الخدمات</h3>
+                <p>سيرة ذاتية، تصميم، تطوير</p>
+                <span class="product-count">15 خدمة</span>
+            </a>
+
+            <a href="blog.html" class="category-card" style="animation-delay: 0.4s">
+                <div class="category-icon">
+                    <span>📝</span>
+                </div>
+                <h3>المدونة</h3>
+                <p>أخبار ومقالات عن Pi</p>
+                <span class="product-count">30 مقال</span>
+            </a>
+        </div>
+
+        <!-- منتجات مميزة -->
+        <div class="featured-products">
+            <h2 style="color: var(--dark); margin-bottom: 1rem;">⭐ منتجات مميزة</h2>
+            <div class="products-grid" id="featuredProducts">
+                <!-- سيتم إضافة المنتجات عبر JavaScript -->
+            </div>
+        </div>
     </div>
 
-    <!-- الرابط الصحيح لـ SDK -->
-    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    
+    <!-- تذييل الصفحة -->
+    <div class="footer">
+        <p>جميع الحقوق محفوظة © 2026 سوق Pi | الهواوشة</p>
+        <p>نعمل على شبكة Testnet - استعداداً للإطلاق على Mainnet</p>
+    </div>
+
+    <!-- رسالة الترحيب -->
+    <div class="welcome-message" id="welcomeMessage">
+        <strong>👋 أهلين بك في سوق Pi!</strong>
+        <p style="margin-top: 5px; font-size: 0.9rem;">استعد للتسوق بـ Pi</p>
+    </div>
+
     <script>
-        // تهيئة Pi SDK لـ Testnet
-        if (window.Pi) {
-            window.Pi.init({
-                version: "2.0",
-                sandbox: true // هذا يفعل وضع Testnet
-            });
-            document.getElementById('status').innerText = 'Pi SDK جاهز - وضع Testnet ✅';
-            document.getElementById('status').style.color = '#4CAF50';
-        } else {
-            document.getElementById('status').innerText = 'خطأ: لم يتم تحميل Pi SDK';
-            document.getElementById('status').style.color = 'red';
-        }
+        // معلومات التطبيق - تم إضافة المفتاح الخاص بك هنا
+        const APP_CONFIG = {
+            appId: 'souq-pi-test',  // أو جرب '' إذا لم يعمل
+            apiKey: '2fpnxjfbpwk85aoad2bmqmny2q5he9l10ymsnvf2vhibgfclmastpashjbihkeef', // المفتاح الذي أرسلته
+            walletAddress: 'GC3YQ...Z656N',
+            basePrice: 7 // 1 Pi = 7 دينار أردني
+        };
 
-        // التعامل مع زر تسجيل الدخول
-        document.getElementById('loginBtn').addEventListener('click', async () => {
-            try {
-                document.getElementById('status').innerText = 'جاري تسجيل الدخول...';
+        // كائن سوق Pi الرئيسي
+        const PiMarketplace = {
+            isConnected: false,
+            currentUser: null,
+            
+            init: function() {
+                this.checkPiSDK();
+                this.updateConnectionStatus();
+                this.loadFeaturedProducts();
+                this.showWelcomeMessage();
+            },
+            
+            checkPiSDK: function() {
+                if (window.Pi) {
+                    this.initPiSDK();
+                } else {
+                    console.log('⏳ انتظار تحميل Pi SDK...');
+                    setTimeout(() => this.checkPiSDK(), 1000);
+                }
+            },
+            
+            initPiSDK: function() {
+                try {
+                    window.Pi.init({
+                        appId: APP_CONFIG.appId,
+                        onReady: () => {
+                            console.log('✅ Pi SDK جاهز');
+                            this.isConnected = true;
+                            this.updateConnectionStatus(true);
+                            this.authenticateUser();
+                        },
+                        onError: (error) => {
+                            console.error('❌ خطأ في Pi SDK:', error);
+                            this.updateConnectionStatus(false);
+                        }
+                    });
+                } catch (error) {
+                    console.error('❌ فشل تهيئة Pi:', error);
+                    this.updateConnectionStatus(false);
+                }
+            },
+            
+            authenticateUser: function() {
+                window.Pi.authenticate(['payments'])
+                    .then((auth) => {
+                        console.log('✅ مستخدم مسجل:', auth);
+                        this.currentUser = auth;
+                        this.loadUserBalance();
+                        document.getElementById('welcomeMessage').innerHTML = `
+                            <strong>👋 مرحباً ${auth.user.username || 'عميلنا العزيز'}!</strong>
+                            <p>رصيدك: ${auth.user.balance || 0} Pi</p>
+                        `;
+                    })
+                    .catch((error) => {
+                        console.log('المستخدم غير مسجل:', error);
+                    });
+            },
+            
+            updateConnectionStatus: function(connected = false) {
+                const statusEl = document.getElementById('piStatus');
+                if (connected) {
+                    statusEl.textContent = '✅ متصل بـ Pi';
+                    statusEl.className = 'connection-status connected';
+                } else {
+                    statusEl.textContent = '❌ غير متصل';
+                    statusEl.className = 'connection-status';
+                }
+            },
+            
+            loadUserBalance: function() {
+                document.getElementById('balanceAmount').textContent = '6.25';
+            },
+            
+            showWelcomeMessage: function() {
+                setTimeout(() => {
+                    const msg = document.getElementById('welcomeMessage');
+                    msg.classList.add('show');
+                    setTimeout(() => msg.classList.remove('show'), 5000);
+                }, 2000);
+            },
+            
+            loadFeaturedProducts: function() {
+                const products = [
+                    { id: 1, name: 'Tesla Model 3', price: 42000, category: 'cars', icon: '🚗' },
+                    { id: 2, name: 'iPhone 15 Pro', price: 900, category: 'electronics', icon: '📱' },
+                    { id: 3, name: 'تصميم CV احترافي', price: 35, category: 'services', icon: '📄' },
+                    { id: 4, name: 'ساعة ذكية', price: 120, category: 'electronics', icon: '⌚' }
+                ];
                 
-                // طلب تسجيل الدخول بصلاحيات المستخدم
-                const scopes = ['username', 'payments']; // أضف payments إذا كنت تريد التعامل مع المدفوعات
+                const grid = document.getElementById('featuredProducts');
+                grid.innerHTML = products.map(product => {
+                    const piPrice = this.convertToPi(product.price);
+                    return `
+                        <div class="product-card">
+                            <div class="product-image">${product.icon}</div>
+                            <h4>${product.name}</h4>
+                            <div class="product-price">${product.price} د.أ</div>
+                            <span class="pi-price">${piPrice} Pi</span>
+                            <button class="buy-button" onclick="PiMarketplace.buyProduct(${product.id})">
+                                اشتري بـ Pi
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            convertToPi: function(jodAmount) {
+                return (jodAmount / APP_CONFIG.basePrice).toFixed(2);
+            },
+            
+            buyProduct: function(productId) {
+                if (!this.isConnected) {
+                    alert('❌ الرجاء الاتصال بشبكة Pi أولاً');
+                    return;
+                }
                 
-                const auth = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
+                const products = {
+                    1: { name: 'Tesla Model 3', price: 42000 },
+                    2: { name: 'iPhone 15 Pro', price: 900 },
+                    3: { name: 'تصميم CV احترافي', price: 35 },
+                    4: { name: 'ساعة ذكية', price: 120 }
+                };
                 
-                // عرض معلومات المستخدم
-                document.getElementById('username').innerText = auth.user.username;
-                document.getElementById('balance').innerText = auth.user.balance || '0.00';
-                document.getElementById('userInfo').style.display = 'block';
-                document.getElementById('status').innerText = 'تم تسجيل الدخول بنجاح ✅';
+                const product = products[productId];
+                if (!product) return;
                 
-            } catch (error) {
-                console.error(error);
-                document.getElementById('status').innerText = 'خطأ في تسجيل الدخول: ' + error.message;
-                document.getElementById('status').style.color = 'red';
+                const piAmount = this.convertToPi(product.price);
+                
+                if (!confirm(`هل تريد شراء ${product.name} بـ ${piAmount} Pi؟`)) return;
+                
+                window.Pi.createPayment({
+                    amount: parseFloat(piAmount),
+                    memo: `شراء ${product.name} من سوق Pi`,
+                    metadata: { productId: productId }
+                })
+                .then((payment) => {
+                    console.log('✅ تم الدفع:', payment);
+                    alert(`🎉 تهانينا! تم شراء ${product.name} بنجاح`);
+                })
+                .catch((error) => {
+                    console.error('❌ فشل الدفع:', error);
+                    alert('❌ فشلت عملية الشراء، الرجاء المحاولة مرة أخرى');
+                });
             }
-        });
+        };
 
-        // دالة معالجة المدفوعات غير المكتملة (مطلوبة حتى مع sandbox)
-        function onIncompletePaymentFound(payment) {
-            console.log('دفعة غير مكتملة:', payment);
-            // يمكنك إعادة توجيه المستخدم لإكمال الدفعة
-            // أو تحديث حالة الدفعة في قاعدة البيانات
-        }
+        // تشغيل التطبيق
+        document.addEventListener('DOMContentLoaded', () => {
+            PiMarketplace.init();
+        });
     </script>
 </body>
 </html>
