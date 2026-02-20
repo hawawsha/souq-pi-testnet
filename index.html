@@ -7,7 +7,7 @@
     <!-- Pi SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        /* الأنماط الكاملة - كما كانت سابقاً */
+        /* جميع الأنماط كما هي - لم يتم تغييرها */
         * {
             margin: 0;
             padding: 0;
@@ -30,7 +30,6 @@
             min-height: 100vh;
         }
 
-        /* شريط التنقل */
         .navbar {
             background: white;
             padding: 1rem 2rem;
@@ -107,7 +106,6 @@
             background: var(--success);
         }
 
-        /* المحتوى الرئيسي */
         .container {
             max-width: 1200px;
             margin: 2rem auto;
@@ -271,72 +269,6 @@
             font-weight: bold;
         }
 
-        .featured-products {
-            background: white;
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .product-card {
-            background: var(--light);
-            border-radius: 10px;
-            padding: 1rem;
-            text-align: center;
-        }
-
-        .product-image {
-            width: 100%;
-            height: 150px;
-            background: #ddd;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--gray);
-            font-size: 3rem;
-        }
-
-        .product-price {
-            color: var(--pi-purple);
-            font-weight: bold;
-            font-size: 1.2rem;
-            margin: 0.5rem 0;
-        }
-
-        .pi-price {
-            background: var(--pi-purple);
-            color: white;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            display: inline-block;
-        }
-
-        .buy-button {
-            background: var(--success);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 8px;
-            margin-top: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-        }
-
-        .buy-button:hover {
-            opacity: 0.9;
-        }
-
         .footer {
             background: white;
             padding: 2rem;
@@ -471,14 +403,6 @@
                 <span class="product-count">30 مقال</span>
             </a>
         </div>
-
-        <!-- منتجات مميزة -->
-        <div class="featured-products">
-            <h2 style="color: var(--dark); margin-bottom: 1rem;">⭐ منتجات مميزة</h2>
-            <div class="products-grid" id="featuredProducts">
-                <!-- سيتم إضافة المنتجات عبر JavaScript -->
-            </div>
-        </div>
     </div>
 
     <!-- تذييل الصفحة -->
@@ -487,22 +411,22 @@
         <p>نعمل على شبكة Testnet - استعداداً للإطلاق على Mainnet</p>
     </div>
 
-    <!-- رسالة الترحيب -->
+    <!-- رسالة الترحيب المنبثقة -->
     <div class="welcome-message" id="welcomeMessage">
         <strong>👋 أهلين بك في سوق Pi!</strong>
-        <p style="margin-top: 5px; font-size: 0.9rem;">استعد للتسوق بـ Pi</p>
+        <p style="margin-top: 5px;">استعد للتسوق بـ Pi</p>
     </div>
 
     <script>
         // معلومات التطبيق - تم إضافة المفتاح الخاص بك هنا
         const APP_CONFIG = {
-            appId: 'souq-pi-test',  // أو جرب '' إذا لم يعمل
-            apiKey: '2fpnxjfbpwk85aoad2bmqmny2q5he9l10ymsnvf2vhibgfclmastpashjbihkeef', // المفتاح الذي أرسلته
+            appId: 'souq-pi-test',
+            apiKey: '2fpnxjfbpwk85aoad2bmqmny2q5he9l10ymsnvf2vhibgfclmastpashjbihkeef',
             walletAddress: 'GC3YQ...Z656N',
             basePrice: 7 // 1 Pi = 7 دينار أردني
         };
 
-        // كائن سوق Pi الرئيسي
+        // كائن سوق Pi الرئيسي (بدون قسم المنتجات)
         const PiMarketplace = {
             isConnected: false,
             currentUser: null,
@@ -510,7 +434,6 @@
             init: function() {
                 this.checkPiSDK();
                 this.updateConnectionStatus();
-                this.loadFeaturedProducts();
                 this.showWelcomeMessage();
             },
             
@@ -583,68 +506,8 @@
                 }, 2000);
             },
             
-            loadFeaturedProducts: function() {
-                const products = [
-                    { id: 1, name: 'Tesla Model 3', price: 42000, category: 'cars', icon: '🚗' },
-                    { id: 2, name: 'iPhone 15 Pro', price: 900, category: 'electronics', icon: '📱' },
-                    { id: 3, name: 'تصميم CV احترافي', price: 35, category: 'services', icon: '📄' },
-                    { id: 4, name: 'ساعة ذكية', price: 120, category: 'electronics', icon: '⌚' }
-                ];
-                
-                const grid = document.getElementById('featuredProducts');
-                grid.innerHTML = products.map(product => {
-                    const piPrice = this.convertToPi(product.price);
-                    return `
-                        <div class="product-card">
-                            <div class="product-image">${product.icon}</div>
-                            <h4>${product.name}</h4>
-                            <div class="product-price">${product.price} د.أ</div>
-                            <span class="pi-price">${piPrice} Pi</span>
-                            <button class="buy-button" onclick="PiMarketplace.buyProduct(${product.id})">
-                                اشتري بـ Pi
-                            </button>
-                        </div>
-                    `;
-                }).join('');
-            },
-            
             convertToPi: function(jodAmount) {
                 return (jodAmount / APP_CONFIG.basePrice).toFixed(2);
-            },
-            
-            buyProduct: function(productId) {
-                if (!this.isConnected) {
-                    alert('❌ الرجاء الاتصال بشبكة Pi أولاً');
-                    return;
-                }
-                
-                const products = {
-                    1: { name: 'Tesla Model 3', price: 42000 },
-                    2: { name: 'iPhone 15 Pro', price: 900 },
-                    3: { name: 'تصميم CV احترافي', price: 35 },
-                    4: { name: 'ساعة ذكية', price: 120 }
-                };
-                
-                const product = products[productId];
-                if (!product) return;
-                
-                const piAmount = this.convertToPi(product.price);
-                
-                if (!confirm(`هل تريد شراء ${product.name} بـ ${piAmount} Pi؟`)) return;
-                
-                window.Pi.createPayment({
-                    amount: parseFloat(piAmount),
-                    memo: `شراء ${product.name} من سوق Pi`,
-                    metadata: { productId: productId }
-                })
-                .then((payment) => {
-                    console.log('✅ تم الدفع:', payment);
-                    alert(`🎉 تهانينا! تم شراء ${product.name} بنجاح`);
-                })
-                .catch((error) => {
-                    console.error('❌ فشل الدفع:', error);
-                    alert('❌ فشلت عملية الشراء، الرجاء المحاولة مرة أخرى');
-                });
             }
         };
 
