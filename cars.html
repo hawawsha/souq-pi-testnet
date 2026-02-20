@@ -3,68 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>معرض سيارات الهواوشة | 9 موديلات</title>
-    <style>
-        :root { --dark: #1a1a1a; --accent: #e67e22; --bg: #fdfdfd; }
-        
-        /* أهم تعديل: السماح بالنزول لأسفل الصفحة لرؤية كل السيارات */
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: var(--bg); 
-            margin: 0; 
-            padding: 0;
-            overflow-y: auto !important; /* لضمان القدرة على النزول للأسفل */
-            min-height: 100vh;
-        }
-
-        header { background: var(--dark); color: white; padding: 20px; text-align: center; border-bottom: 3px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
-        
-        /* توزيع السيارات بشكل يضمن ظهورها كلها عند النزول */
-        .container { 
-            display: flex; 
-            flex-wrap: wrap; 
-            justify-content: center; 
-            gap: 25px; 
-            padding: 30px; 
-            max-width: 1200px; 
-            margin: auto; 
-        }
-        
-        .car-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 5px 20px rgba(0,0,0,0.05); border: 1px solid #eee; width: 300px; }
-        
-        .img-box { width: 100%; height: 200px; background: #fff; padding: 15px; box-sizing: border-box; }
-        .img-box img { width: 100%; height: 100%; object-fit: contain; }
-        
-        .info { padding: 20px; text-align: center; }
-        .car-name { font-weight: bold; color: var(--dark); font-size: 1.1em; margin-bottom: 10px; display: block; }
-        .price { color: var(--accent); font-weight: bold; font-size: 1.4em; display: block; margin-bottom: 15px; }
-        
-        .btn-reserve { background: var(--dark); color: white; padding: 12px; text-decoration: none; border-radius: 10px; display: block; font-weight: bold; }
-
-        .back-btn { display: block; text-align: center; margin: 20px; color: #666; text-decoration: none; font-weight: bold; }
-        .cart-mini { position: fixed; bottom: 15px; left: 15px; background: var(--dark); color: white; padding: 8px 18px; border-radius: 30px; font-size: 0.8em; z-index: 2000; }
-    </style>
+    <title>سيارات | سوق Pi</title>
+    <link rel="stylesheet" href="assets/css/main.css"> <!-- سننشئه لاحقاً -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
 </head>
 <body>
+    <!-- شريط التنقل (انسخه من index.html) -->
+    <nav class="navbar"> ... </nav>
 
-<header>معرض الهواوشة: تسلا - مرسيدس - لوسيد</header>
-<a href="index.html" class="back-btn">← العودة للرئيسية</a>
+    <div class="container">
+        <h1 class="section-title">🚗 السيارات المتاحة</h1>
+        <div class="products-grid" id="carsGrid">
+            <!-- هنا ستظهر السيارات -->
+        </div>
+    </div>
 
-<div class="container">
-    <div class="car-card"><div class="img-box"><img src="images/tesla1.jpg"></div><div class="info"><span class="car-name">Tesla Model 3</span><span class="price">42,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/tesla1.jpg"></div><div class="info"><span class="car-name">Tesla Model X</span><span class="price">75,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/tesla1.jpg"></div><div class="info"><span class="car-name">Tesla Model Y</span><span class="price">50,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
+    <!-- تذييل الصفحة -->
+    <footer class="footer"> ... </footer>
 
-    <div class="car-card"><div class="img-box"><img src="images/mercedes1.jpg"></div><div class="info"><span class="car-name">Mercedes Benz EQS</span><span class="price">90,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/mercedes1.jpg"></div><div class="info"><span class="car-name">Mercedes Benz EQE</span><span class="price">70,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/mercedes1.jpg"></div><div class="info"><span class="car-name">Mercedes Benz C-Class</span><span class="price">55,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
+    <script>
+        const API_URL = 'https://sheetdb.io/api/v1/xxxxxxxxxxxxxx'; // ضع رابط SheetDB هنا
+        const BASE_PRICE = 7; // 1 Pi = 7 دينار
 
-    <div class="car-card"><div class="img-box"><img src="images/lucid1.jpg"></div><div class="info"><span class="car-name">Lucid Air Pure</span><span class="price">65,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/lucid1.jpg"></div><div class="info"><span class="car-name">Lucid Air Touring</span><span class="price">80,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-    <div class="car-card"><div class="img-box"><img src="images/lucid1.jpg"></div><div class="info"><span class="car-name">Lucid Air Grand</span><span class="price">100,000 د.أ</span><a href="#" class="btn-reserve">طلب حجز</a></div></div>
-</div>
+        async function loadCars() {
+            try {
+                const response = await fetch(API_URL);
+                const products = await response.json();
+                const cars = products.filter(p => p.category === 'سيارات');
 
-<div class="cart-mini">🛒 السلة: 0 د.أ</div>
+                const grid = document.getElementById('carsGrid');
+                grid.innerHTML = cars.map(car => {
+                    const piPrice = (car.price / BASE_PRICE).toFixed(2);
+                    return `
+                        <div class="product-card">
+                            <img src="images/${car.image}" alt="${car.name}" class="product-image">
+                            <h3>${car.name}</h3>
+                            <p>${car.description}</p>
+                            <div class="product-price">${car.price} د.أ</div>
+                            <span class="pi-price">${piPrice} Pi</span>
+                            <button class="buy-button" onclick="buyCar(${car.id}, '${car.name}', ${car.price})">
+                                اشتري بـ Pi
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('خطأ في تحميل السيارات:', error);
+            }
+        }
 
+        function buyCar(id, name, priceJOD) {
+            const piAmount = (priceJOD / BASE_PRICE).toFixed(2);
+            if (!confirm(`شراء ${name} بـ ${piAmount} Pi؟`)) return;
+
+            Pi.createPayment({
+                amount: parseFloat(piAmount),
+                memo: `شراء ${name}`,
+                metadata: { productId: id }
+            }).then(payment => {
+                alert('تم الشراء بنجاح!');
+            }).catch(err => {
+                alert('فشل الشراء');
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // تهيئة Pi SDK (إذا لم تكن مهيأة)
+            if (window.Pi) {
+                Pi.init({ appId: 'souq-pi-test' });
+            }
+            loadCars();
+        });
+    </script>
 </body>
 </html>
